@@ -8,12 +8,15 @@ from TodoApp import models
 from TodoApp.models import ToDos
 from TodoApp.database import get_database, engine
 
+
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
 
+db_dependency = Annotated[Session, Depends(get_database)]
 
-@app.get("/")
-async def read_all(db: Annotated[Session, Depends(get_database)]):
+
+@app.get("/", status_code=status.HTTP_200_OK)
+async def read_all(db: db_dependency):
     return db.query(ToDos).all()
 
 
