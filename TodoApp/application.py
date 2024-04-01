@@ -51,5 +51,13 @@ async def update_todo(db: db_dependency, todo_request: ToDoRequest, todo_id: int
     db.commit()
 
 
+@app.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_todo(db: db_dependency, todo_id: int = Path(gt=0)):
+    todo_to_delete = db.query(ToDo).filter(ToDo.id == todo_id).first()
+    if todo_to_delete is None:
+        raise HTTPException(status_code=404, detail='Item not found')
+    db.query(ToDo).filter(ToDo.id == todo_id).delete()
+    db.commit()
+
 if __name__ == '__main__':
     uvicorn.run(app, host="127.0.0.1", port=8000)
