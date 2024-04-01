@@ -37,7 +37,7 @@ async def create_todo(db: db_dependency, todo_request: ToDoRequest):
 
 
 @app.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_todo(db: db_dependency, todo_id: int, todo_request: ToDoRequest):
+async def update_todo(db: db_dependency, todo_request: ToDoRequest, todo_id: int = Path(gt=0)):
     todo_to_update: ToDo = db.query(ToDo).filter(ToDo.id == todo_id).first()
     if todo_to_update is None:
         raise HTTPException(status_code=404, detail='Item not found')
