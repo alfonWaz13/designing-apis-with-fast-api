@@ -8,7 +8,7 @@ from starlette import status
 from TodoApp import models
 from TodoApp.models import ToDos
 from TodoApp.database import get_database, engine
-
+from TodoApp.schemas import ToDoRequest
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
@@ -27,6 +27,13 @@ async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
     if todo_model is not None:
         return todo_model
     raise HTTPException(status_code=404, detail='Item not found')
+
+
+@app.post("/todo", status_code=status.HTTP_201_CREATED)
+async def create_todo(db: db_dependency, todo_request: ToDoRequest):
+    todo_to_insert = ToDos(**todo_request.dict())
+    db.add(todo_to_insert)
+    db.commit()
 
 
 if __name__ == '__main__':
