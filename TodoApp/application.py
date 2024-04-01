@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 
 from TodoApp import models
-from TodoApp.models import ToDos
+from TodoApp.models import ToDo
 from TodoApp.database import get_database, engine
 from TodoApp.schemas import ToDoRequest
 
@@ -18,12 +18,12 @@ db_dependency = Annotated[Session, Depends(get_database)]
 
 @app.get("/", status_code=status.HTTP_200_OK)
 async def read_all(db: db_dependency):
-    return db.query(ToDos).all()
+    return db.query(ToDo).all()
 
 
 @app.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)
 async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
-    todo_model = db.query(ToDos).filter(ToDos.id == todo_id).first()
+    todo_model = db.query(ToDo).filter(ToDo.id == todo_id).first()
     if todo_model is not None:
         return todo_model
     raise HTTPException(status_code=404, detail='Item not found')
@@ -31,14 +31,14 @@ async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
 
 @app.post("/todo", status_code=status.HTTP_201_CREATED)
 async def create_todo(db: db_dependency, todo_request: ToDoRequest):
-    todo_to_insert = ToDos(**todo_request.dict())
+    todo_to_insert = ToDo(**todo_request.dict())
     db.add(todo_to_insert)
     db.commit()
 
 
 @app.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def update_todo(db: db_dependency, todo_id: int, todo_request: ToDoRequest):
-    todo_to_update: ToDos = db.query(ToDos).filter(ToDos.id == todo_id).first()
+    todo_to_update: ToDo = db.query(ToDo).filter(ToDo.id == todo_id).first()
     if todo_to_update is None:
         raise HTTPException(status_code=404, detail='Item not found')
 
