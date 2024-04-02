@@ -8,10 +8,13 @@ from starlette import status
 from TodoApp import models
 from TodoApp.models import ToDo
 from TodoApp.database import get_database, engine
+from TodoApp.routers import auth
 from TodoApp.schemas import ToDoRequest
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
+
+app.include_router(auth.router)
 
 db_dependency = Annotated[Session, Depends(get_database)]
 
