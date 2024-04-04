@@ -1,14 +1,11 @@
-from typing import Annotated
-
-from fastapi import Depends, Path, HTTPException, APIRouter
-from sqlalchemy.orm import Session
+from fastapi import Path, HTTPException, APIRouter
 from starlette import status
 
-from TodoApp.database import get_database
+from TodoApp.database import db_dependency
 from TodoApp.models import ToDos
 from TodoApp.schemas import ToDoRequest
 
-db_dependency = Annotated[Session, Depends(get_database)]
+
 router = APIRouter()
 
 
