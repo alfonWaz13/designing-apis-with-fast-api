@@ -1,3 +1,4 @@
+from datetime import timedelta, datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
@@ -22,6 +23,13 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 def authenticate_user(username: str, password: str, db: db_dependency):
     user = db.query(Users).filter(Users.username == username).first()
     return user is not None and bcrypt_context.verify(password, user.hashed_password)
+
+
+def create_access_token(username: str, user_id: int, delta_expiration_time: timedelta):
+    encode = {'sub': username, 'id': user_id}
+    expires = datetime.utcnow() + delta_expiration_time
+    encode.update({'exp': expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
 @router.post("/auth", status_code=status.HTTP_201_CREATED)
