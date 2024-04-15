@@ -8,9 +8,13 @@ from TodoApp.database import db_dependency
 from TodoApp.models import Users
 from TodoApp.schemas import CreateUserRequest
 from fastapi.security import OAuth2PasswordRequestForm
+from jose import jwt
 
 
 router = APIRouter()
+
+SECRET_KEY = 'fc744cc1547da2e58520a888df43bd0b694b8084739ac6571a1330231f587c5b'
+ALGORITHM = 'HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
