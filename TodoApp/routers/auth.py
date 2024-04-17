@@ -16,6 +16,7 @@ router = APIRouter()
 
 SECRET_KEY = 'fc744cc1547da2e58520a888df43bd0b694b8084739ac6571a1330231f587c5b'
 ALGORITHM = 'HS256'
+TOKEN_EXPIRATION_TIME_MINUTES = 20
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -53,4 +54,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         return 'Failed Authentication'
-    return 'Success Authentication'
+
+    token = create_access_token(user.username, user.id, timedelta(minutes=TOKEN_EXPIRATION_TIME_MINUTES))
+    return token
