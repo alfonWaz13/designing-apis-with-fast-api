@@ -3,6 +3,7 @@ from starlette import status
 
 from TodoApp.database import db_dependency
 from TodoApp.models import ToDos
+from TodoApp.routers.auth import user_dependency
 from TodoApp.schemas import ToDoRequest
 
 
@@ -23,8 +24,12 @@ async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
 
 
 @router.post("/todo", status_code=status.HTTP_201_CREATED)
-async def create_todo(db: db_dependency, todo_request: ToDoRequest):
-    todo_to_insert = ToDos(**todo_request.dict())
+async def create_todo(user: user_dependency, db: db_dependency, todo_request: ToDoRequest):
+
+    if user is None:
+        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
+    todo_to_insert = ToDos(**todo_request.dict(), owner_id=user.get('id'))
     db.add(todo_to_insert)
     db.commit()
 
