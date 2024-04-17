@@ -1,3 +1,5 @@
+from pydantic import BaseModel
+
 from database import Base
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 
@@ -24,3 +26,8 @@ class ToDos(Base):
     priority = Column(Integer)
     complete = Column(Boolean, default=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
