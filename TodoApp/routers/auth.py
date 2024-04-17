@@ -1,16 +1,15 @@
 from datetime import timedelta, datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from passlib.context import CryptContext
 from starlette import status
 
 from TodoApp.database import db_dependency
 from TodoApp.models import Users, Token
 from TodoApp.schemas import CreateUserRequest
-from fastapi.security import OAuth2PasswordRequestForm
-from jose import jwt
-
+from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
+from jose import jwt, JWTError
 
 router = APIRouter()
 
@@ -19,6 +18,7 @@ ALGORITHM = 'HS256'
 TOKEN_EXPIRATION_TIME_MINUTES = 20
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl='token')
 
 
 def authenticate_user(username: str, password: str, db: db_dependency):
@@ -31,6 +31,20 @@ def create_access_token(username: str, user_id: int, delta_expiration_time: time
     expires = datetime.utcnow() + delta_expiration_time
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get('sub')
+        user_id = payload.get('id')
+
+        if username is None or user_id is None:
+            raise ValueError
+        return {'username': username, 'id': user_id}
+
+    except (JWTError, ValueError):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user.')
 
 
 @router.post("/auth", status_code=status.HTTP_201_CREATED)
