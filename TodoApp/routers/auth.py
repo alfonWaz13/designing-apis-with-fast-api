@@ -22,7 +22,7 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 def authenticate_user(username: str, password: str, db: db_dependency):
     user = db.query(Users).filter(Users.username == username).first()
-    return user is not None and bcrypt_context.verify(password, user.hashed_password)
+    return user if user is not None and bcrypt_context.verify(password, user.hashed_password) else None
 
 
 def create_access_token(username: str, user_id: int, delta_expiration_time: timedelta):
