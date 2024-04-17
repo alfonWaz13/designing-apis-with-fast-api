@@ -11,14 +11,14 @@ from TodoApp.schemas import CreateUserRequest
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
 
-router = APIRouter()
+router = APIRouter(prefix='/auth', tags=['auth'])
 
 SECRET_KEY = 'fc744cc1547da2e58520a888df43bd0b694b8084739ac6571a1330231f587c5b'
 ALGORITHM = 'HS256'
 TOKEN_EXPIRATION_TIME_MINUTES = 20
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl='token')
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
 
 
 def authenticate_user(username: str, password: str, db: db_dependency):
@@ -47,7 +47,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user.')
 
 
-@router.post("/auth", status_code=status.HTTP_201_CREATED)
+@router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, request: CreateUserRequest):
     user_to_create = Users(
         email=request.email,
