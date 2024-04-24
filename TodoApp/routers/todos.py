@@ -54,9 +54,13 @@ async def update_todo(user: user_dependency, db: db_dependency, todo_request: To
 
 
 @router.delete("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_todo(db: db_dependency, todo_id: int = Path(gt=0)):
-    todo_to_delete = db.query(ToDos).filter(ToDos.id == todo_id).first()
+async def delete_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0)):
+
+    user_todos = db.query(ToDos).filter(ToDos.owner_id == user.get('id'))
+    todo_to_delete = user_todos.filter(ToDos.id == todo_id).first()
+
     if todo_to_delete is None:
         raise HTTPException(status_code=404, detail='Item not found')
-    db.query(ToDos).filter(ToDos.id == todo_id).delete()
+
+    user_todos.filter(ToDos.id == todo_id).delete()
     db.commit()
