@@ -36,8 +36,11 @@ async def create_todo(user: user_dependency, db: db_dependency, todo_request: To
 
 
 @router.put("/todo/{todo_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def update_todo(db: db_dependency, todo_request: ToDoRequest, todo_id: int = Path(gt=0)):
-    todo_to_update: ToDos = db.query(ToDos).filter(ToDos.id == todo_id).first()
+async def update_todo(user: user_dependency, db: db_dependency, todo_request: ToDoRequest, todo_id: int = Path(gt=0)):
+
+    user_todos = db.query(ToDos).filter(ToDos.owner_id == user.get('id'))
+    todo_to_update = user_todos.filter(ToDos.id == todo_id).first()
+
     if todo_to_update is None:
         raise HTTPException(status_code=404, detail='Item not found')
 
