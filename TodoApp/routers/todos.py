@@ -12,14 +12,16 @@ router = APIRouter()
 
 @router.get("/", status_code=status.HTTP_200_OK)
 async def read_all(user: user_dependency, db: db_dependency):
-    if user is None:
-        raise HTTPException(status_code=401, detail='Authentication Failed.')
+
     return db.query(ToDos).filter(ToDos.owner_id == user.get('id')).all()
 
 
 @router.get("/todo/{todo_id}", status_code=status.HTTP_200_OK)
-async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
-    todo_model = db.query(ToDos).filter(ToDos.id == todo_id).first()
+async def read_todo(user: user_dependency, db: db_dependency, todo_id: int = Path(gt=0)):
+
+    user_todos = db.query(ToDos).filter(ToDos.owner_id == user.get('id'))
+    todo_model = user_todos.filter(ToDos.id == todo_id).first()
+
     if todo_model is not None:
         return todo_model
     raise HTTPException(status_code=404, detail='Item not found')
@@ -27,9 +29,6 @@ async def read_todo(db: db_dependency, todo_id: int = Path(gt=0)):
 
 @router.post("/todo", status_code=status.HTTP_201_CREATED)
 async def create_todo(user: user_dependency, db: db_dependency, todo_request: ToDoRequest):
-
-    if user is None:
-        raise HTTPException(status_code=401, detail='Authentication Failed.')
 
     todo_to_insert = ToDos(**todo_request.dict(), owner_id=user.get('id'))
     db.add(todo_to_insert)
