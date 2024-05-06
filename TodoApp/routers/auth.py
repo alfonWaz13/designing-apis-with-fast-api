@@ -26,8 +26,8 @@ def authenticate_user(username: str, password: str, db: db_dependency):
     return user if user is not None and bcrypt_context.verify(password, user.hashed_password) else None
 
 
-def create_access_token(username: str, user_id: int, delta_expiration_time: timedelta):
-    encode = {'sub': username, 'id': user_id}
+def create_access_token(username: str, user_id: int, role: str, delta_expiration_time: timedelta):
+    encode = {'sub': username, 'id': user_id, 'role': role}
     expires = datetime.utcnow() + delta_expiration_time
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
@@ -38,16 +38,18 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get('sub')
         user_id = payload.get('id')
+        user_role: str = payload.get('role')
 
         if username is None or user_id is None:
             raise ValueError
-        return {'username': username, 'id': user_id}
+        return {'username': username, 'id': user_id, 'role': user_role}
 
     except (JWTError, ValueError):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user.')
 
 
 user_dependency = Annotated[dict, Depends(get_current_user)]
+
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def create_user(db: db_dependency, request: CreateUserRequest):
@@ -71,5 +73,5 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user.')
 
-    token = create_access_token(user.username, user.id, timedelta(minutes=TOKEN_EXPIRATION_TIME_MINUTES))
+    token = create_access_token(user.username, user.id, user.role, timedelta(minutes=TOKEN_EXPIRATION_TIME_MINUTES))
     return {'access_token': token, 'token_type': 'bearer'}
