@@ -6,7 +6,7 @@ from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.ext.declarative import declarative_base
 
 
-DATABASE_SQL = 'postgresql://postgres:test1234!@localhost/TodoApplicationDatabase'
+DATABASE_SQL = 'sqlite:///./todosapp.db'
 
 engine = create_engine(DATABASE_SQL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
