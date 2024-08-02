@@ -2,6 +2,7 @@ import sqlalchemy
 
 from TodoApp.database import Base, get_database
 from TodoApp.application import app
+from TodoApp.routers.auth import get_current_user
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./testdb.db"
 
@@ -23,4 +24,9 @@ def override_get_database():
         db.close()
 
 
+def override_get_current_user():
+    return {'username': 'usertest', 'id': 1, 'user_role': 'admin'}
+
+
 app.dependency_overrides[get_database] = override_get_database
+app.dependency_overrides[get_current_user] = override_get_current_user
