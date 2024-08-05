@@ -4,8 +4,8 @@ from starlette import status
 from TodoApp.database import db_dependency
 from TodoApp.models import ToDos
 from TodoApp.routers.auth import user_dependency
+from TodoApp.routers import response_messages
 from TodoApp.schemas import ToDoRequest
-
 
 router = APIRouter()
 
@@ -24,7 +24,7 @@ async def read_todo(user: user_dependency, db: db_dependency, todo_id: int = Pat
 
     if todo_model is not None:
         return todo_model
-    raise HTTPException(status_code=404, detail='Item not found')
+    raise HTTPException(status_code=404, detail=response_messages.ITEM_NOT_FOUND_MESSAGE)
 
 
 @router.post("/todo", status_code=status.HTTP_201_CREATED)
@@ -42,7 +42,7 @@ async def update_todo(user: user_dependency, db: db_dependency, todo_request: To
     todo_to_update = user_todos.filter(ToDos.id == todo_id).first()
 
     if todo_to_update is None:
-        raise HTTPException(status_code=404, detail='Item not found')
+        raise HTTPException(status_code=404, detail=response_messages.ITEM_NOT_FOUND_MESSAGE)
 
     todo_to_update.title = todo_request.title
     todo_to_update.description = todo_request.description
@@ -60,7 +60,7 @@ async def delete_todo(user: user_dependency, db: db_dependency, todo_id: int = P
     todo_to_delete = user_todos.filter(ToDos.id == todo_id).first()
 
     if todo_to_delete is None:
-        raise HTTPException(status_code=404, detail='Item not found')
+        raise HTTPException(status_code=404, detail=response_messages.ITEM_NOT_FOUND_MESSAGE)
 
     user_todos.filter(ToDos.id == todo_id).delete()
     db.commit()
