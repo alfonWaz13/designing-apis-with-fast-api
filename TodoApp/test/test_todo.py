@@ -4,6 +4,7 @@ import sqlalchemy
 from TodoApp.models import ToDos
 from TodoApp.test.config import client, TestingSessionLocal, engine
 
+from fastapi import status
 
 
 class TestGet:
@@ -27,3 +28,8 @@ class TestGet:
             connection.execute(sqlalchemy.text("DELETE FROM todos;"))
             connection.commit()
 
+    def test_read_all_todos_return_pre_defined_todo(self):
+        response = client.get("/")
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.json()) == 1
+        assert response.json()[0].get('id') == 1
