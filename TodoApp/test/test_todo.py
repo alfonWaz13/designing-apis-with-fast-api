@@ -33,3 +33,13 @@ class TestGet:
         assert response.status_code == status.HTTP_200_OK
         assert len(response.json()) == 1
         assert response.json()[0].get('id') == 1
+
+    def test_read_todo_with_id_1_returns_the_predefined_todo(self):
+        response = client.get("/todo/1")
+        assert response.status_code == status.HTTP_200_OK
+        assert response.json().get('id') == 1
+        assert response.json().get('title') == "Test"
+        assert response.json().get('description') == "Test"
+        assert response.json().get('priority') == 5
+        assert response.json().get('complete') is False
+        assert response.json().get('owner_id') == 1
