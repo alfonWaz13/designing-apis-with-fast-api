@@ -14,8 +14,9 @@ engine = sqlalchemy.create_engine(
     poolclass=sqlalchemy.StaticPool
 )
 
-TestingSessionLocal = sqlalchemy.orm.sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(bind=engine)
+
+TestingSessionLocal = sqlalchemy.orm.sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
 def override_get_database():
