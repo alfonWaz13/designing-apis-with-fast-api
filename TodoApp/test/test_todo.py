@@ -3,6 +3,7 @@ import sqlalchemy
 
 from TodoApp.models import ToDos
 from TodoApp.test.config import client, TestingSessionLocal, engine
+from TodoApp.routers import response_messages
 
 from fastapi import status
 
@@ -43,3 +44,8 @@ class TestGet:
         assert response.json().get('priority') == 5
         assert response.json().get('complete') is False
         assert response.json().get('owner_id') == 1
+
+    def test_read_todo_with_id_999_returns_404_status_code(self):
+        response = client.get("/todo/999")
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {'detail': response_messages.ITEM_NOT_FOUND_MESSAGE}
