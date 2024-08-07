@@ -50,3 +50,28 @@ class TestGet:
         response = client.get("/todo/999")
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json() == {'detail': response_messages.ITEM_NOT_FOUND_MESSAGE}
+
+
+class TestPost:
+
+    @pytest.fixture(autouse=True)
+    def setup_and_teardown(self):
+        db = TestingSessionLocal()
+        db.add(PREDEFINED_TODO)
+        db.commit()
+        db.close()
+        yield
+        with engine.connect() as connection:
+            connection.execute(sqlalchemy.text("DELETE FROM todos;"))
+            connection.commit()
+
+    def test_create_todo_returns_created_status_code(self):
+        request_data = {
+            'title': 'test_create',
+            'description': 'test_create',
+            'priority': 1,
+            'complete': False
+        }
+
+        response = client.post('/todo/', json=request_data)
+        assert response.status_code == status.HTTP_201_CREATED
