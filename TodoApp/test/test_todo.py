@@ -8,9 +8,7 @@ from TodoApp.routers import response_messages
 from fastapi import status
 
 
-class TestGet:
-
-    predefined_todo = ToDos(
+PREDEFINED_TODO = ToDos(
         title="Test",
         description="Test",
         priority=5,
@@ -18,10 +16,13 @@ class TestGet:
         owner_id=1
     )
 
+
+class TestGet:
+
     @pytest.fixture(autouse=True)
     def setup_and_teardown(self):
         db = TestingSessionLocal()
-        db.add(self.predefined_todo)
+        db.add(PREDEFINED_TODO)
         db.commit()
         db.close()
         yield
