@@ -75,3 +75,20 @@ class TestPost:
 
         response = client.post('/todo/', json=request_data)
         assert response.status_code == status.HTTP_201_CREATED
+
+    def test_create_todo_stores_todo_in_database(self):
+        request_data = {
+            'title': 'test_create',
+            'description': 'test_create',
+            'priority': 1,
+            'complete': False
+        }
+
+        client.post('/todo/', json=request_data)
+        db = TestingSessionLocal()
+        model = db.query(ToDos).filter(ToDos.id == 2).first()
+
+        assert model.title == request_data.get('title')
+        assert model.description == request_data.get('description')
+        assert model.priority == request_data.get('priority')
+        assert model.complete == request_data.get('complete')
