@@ -1,5 +1,5 @@
 import pytest
-import sqlalchemy
+from sqlalchemy import text
 
 from TodoApp.models import ToDos
 from TodoApp.test.config import client, TestingSessionLocal, engine
@@ -7,28 +7,41 @@ from TodoApp.routers import response_messages
 
 from fastapi import status
 
+PREDEFINED_TODO = {
+    "title": "Test",
+    "description": "Test",
+    "priority": 5,
+    "complete": False,
+    "owner_id": 1
+}
 
-PREDEFINED_TODO = ToDos(
-        title="Test",
-        description="Test",
-        priority=5,
-        complete=False,
-        owner_id=1
-    )
+INSERT_TODO_QUERY = text(
+    """
+    INSERT INTO todos (title, description, priority, complete, owner_id)
+    VALUES (:title, :description, :priority, :complete, :owner_id)
+    """
+)
+
+
+@pytest.fixture(autouse=True)
+def setup_and_teardown():
+    connection = engine.connect()
+    session = TestingSessionLocal(bind=connection)
+
+    session.execute(text("DELETE FROM todos;"))
+    session.commit()
+    session.execute(INSERT_TODO_QUERY, PREDEFINED_TODO)
+    session.commit()
+
+    yield session
+
+    session.execute(text("DELETE FROM todos;"))
+    session.commit()
+    session.close()
+    connection.close()
 
 
 class TestGet:
-
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        db = TestingSessionLocal()
-        db.add(PREDEFINED_TODO)
-        db.commit()
-        db.close()
-        yield
-        with engine.connect() as connection:
-            connection.execute(sqlalchemy.text("DELETE FROM todos;"))
-            connection.commit()
 
     def test_read_all_todos_return_pre_defined_todo(self):
         response = client.get("/")
@@ -53,17 +66,6 @@ class TestGet:
 
 
 class TestPost:
-
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        db = TestingSessionLocal()
-        db.add(PREDEFINED_TODO)
-        db.commit()
-        db.close()
-        yield
-        with engine.connect() as connection:
-            connection.execute(sqlalchemy.text("DELETE FROM todos;"))
-            connection.commit()
 
     def test_create_todo_returns_created_status_code(self):
         request_data = {
