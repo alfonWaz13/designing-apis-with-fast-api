@@ -29,7 +29,7 @@ def override_get_database():
 
 
 def override_get_current_user():
-    return {'username': 'usertest', 'id': 1, 'user_role': 'admin'}
+    return {'username': 'usertest', 'id': 1, 'role': 'admin'}
 
 
 app.dependency_overrides[get_database] = override_get_database
