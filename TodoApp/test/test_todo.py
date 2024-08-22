@@ -94,3 +94,44 @@ class TestPost:
         assert model.description == request_data.get('description')
         assert model.priority == request_data.get('priority')
         assert model.complete == request_data.get('complete')
+
+
+class TestPut:
+
+    def test_update_todo_returns_no_content_status_code(self):
+        request_data = {
+            'title': 'updating todo',
+            'description': 'updating todo',
+            'priority': 5,
+            'complete': False
+        }
+
+        response = client.put('/todo/1', json=request_data)
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_update_todo_updates_todo_information_in_database(self):
+        request_data = {
+            'title': 'updating todo',
+            'description': 'updating todo',
+            'priority': 5,
+            'complete': False
+        }
+
+        client.put('/todo/1', json=request_data)
+        db = TestingSessionLocal()
+        model = db.query(ToDos).filter(ToDos.id == 1).first()
+
+        assert model.title == 'updating todo'
+        assert model.description == 'updating todo'
+
+    def test_update_todo_returns_not_found_status_code_for_an_id_that_does_not_exist_in_database(self):
+        request_data = {
+            'title': 'updating todo',
+            'description': 'updating todo',
+            'priority': 5,
+            'complete': False
+        }
+
+        response = client.put('/todo/999', json=request_data)
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {'detail': response_messages.ITEM_NOT_FOUND_MESSAGE}
