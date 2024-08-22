@@ -135,3 +135,21 @@ class TestPut:
         response = client.put('/todo/999', json=request_data)
         assert response.status_code == status.HTTP_404_NOT_FOUND
         assert response.json() == {'detail': response_messages.ITEM_NOT_FOUND_MESSAGE}
+
+
+class TestDelete:
+
+    def test_delete_todo_returns_no_content_status_code(self):
+        response = client.delete('/todo/1')
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+
+    def test_delete_todo_deletes_todo_from_database(self):
+        client.delete('/todo/1')
+        db = TestingSessionLocal()
+        model = db.query(ToDos).filter(ToDos.id == 1).first()
+        assert model is None
+
+    def test_delete_todo_returns_not_found_status_code_for_an_id_that_does_not_exist_in_database(self):
+        response = client.delete('/todo/999')
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert response.json() == {'detail': response_messages.ITEM_NOT_FOUND_MESSAGE}
