@@ -1,4 +1,5 @@
 import sqlalchemy
+from sqlalchemy import text
 
 from TodoApp.database import Base, get_database
 from TodoApp.application import app
@@ -35,3 +36,16 @@ app.dependency_overrides[get_database] = override_get_database
 app.dependency_overrides[get_current_user] = override_get_current_user
 
 client = TestClient(app)
+PREDEFINED_TODO = {
+    "title": "Test",
+    "description": "Test",
+    "priority": 5,
+    "complete": False,
+    "owner_id": 1
+}
+INSERT_TODO_QUERY = text(
+    """
+    INSERT INTO todos (title, description, priority, complete, owner_id)
+    VALUES (:title, :description, :priority, :complete, :owner_id)
+    """
+)

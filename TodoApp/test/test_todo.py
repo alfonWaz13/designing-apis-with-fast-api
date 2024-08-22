@@ -2,25 +2,10 @@ import pytest
 from sqlalchemy import text
 
 from TodoApp.models import ToDos
-from TodoApp.test.config import client, TestingSessionLocal, engine
+from TodoApp.test.config import client, TestingSessionLocal, engine, PREDEFINED_TODO, INSERT_TODO_QUERY
 from TodoApp.routers import response_messages
 
 from fastapi import status
-
-PREDEFINED_TODO = {
-    "title": "Test",
-    "description": "Test",
-    "priority": 5,
-    "complete": False,
-    "owner_id": 1
-}
-
-INSERT_TODO_QUERY = text(
-    """
-    INSERT INTO todos (title, description, priority, complete, owner_id)
-    VALUES (:title, :description, :priority, :complete, :owner_id)
-    """
-)
 
 
 @pytest.fixture(autouse=True)
