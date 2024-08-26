@@ -3,6 +3,7 @@ from starlette import status
 
 from TodoApp.database import db_dependency
 from TodoApp.models import ToDos
+from TodoApp.routers import response_messages
 from TodoApp.routers.auth import user_dependency
 
 router = APIRouter(prefix='/admin', tags=['admin'])
@@ -19,7 +20,7 @@ async def delete_todo(user: user_dependency, db: db_dependency, todo_id: int = P
     await check_that_user_is_admin(user)
     todo_to_delete = db.query(ToDos).filter(ToDos.id == todo_id)
     if todo_to_delete.first() is None:
-        raise HTTPException(status_code=404, detail='Todo not found.')
+        raise HTTPException(status_code=404, detail=response_messages.ITEM_NOT_FOUND_MESSAGE)
     todo_to_delete.delete()
     db.commit()
 
