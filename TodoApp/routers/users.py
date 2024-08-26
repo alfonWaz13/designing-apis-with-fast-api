@@ -6,7 +6,7 @@ from TodoApp.models import Users
 from TodoApp.routers.auth import user_dependency, bcrypt_context
 from TodoApp.schemas import NewPasswordRequest
 
-router = APIRouter(prefix='/users', tags=['users'])
+router = APIRouter(prefix='/user', tags=['users'])
 
 
 @router.get('/', status_code=status.HTTP_200_OK)
