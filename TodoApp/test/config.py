@@ -49,3 +49,18 @@ INSERT_TODO_QUERY = text(
     VALUES (:title, :description, :priority, :complete, :owner_id)
     """
 )
+
+PREDEFINED_ADMIN_USER = {'id': 1, 'email': 'admin@example.com', 'username': 'useradmin', 'first_name': 'Admin',
+                         'last_name': 'User', 'hashed_password': 'hashed_password_1', 'is_active': True, 'role': 'admin'
+                         }
+PREDEFINED_NON_ADMIN_USER = {'id': 2, 'email': 'user@example.com', 'username': 'user', 'first_name': 'Regular',
+                             'last_name': 'User', 'hashed_password': 'hashed_password_2', 'is_active': True,
+                             'role': 'owner'
+                             }
+INSERT_USER_QUERY = text(
+    """
+    INSERT INTO users (id, email, username, first_name, last_name, hashed_password, is_active, role)
+    VALUES (:id, :email, :username, :first_name, :last_name, :hashed_password, :is_active, :role)
+    """
+)
+
