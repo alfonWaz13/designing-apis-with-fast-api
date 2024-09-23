@@ -3,7 +3,7 @@ from sqlalchemy import text
 
 from TodoApp.database import Base, get_database
 from TodoApp.application import app
-from TodoApp.routers.auth import get_current_user
+from TodoApp.routers.auth import get_current_user, bcrypt_context
 
 from fastapi.testclient import TestClient
 
@@ -46,13 +46,14 @@ INSERT_TODO_QUERY = text(
     """
 )
 
+ADMIN_PASSWORD = 'admin_password'
 PREDEFINED_ADMIN_USER = {'id': 1, 'email': 'admin@example.com', 'username': 'useradmin', 'first_name': 'Admin',
-                         'last_name': 'User', 'hashed_password': 'hashed_password_1', 'is_active': True, 'role': 'admin'
-                         }
+                         'last_name': 'User', 'hashed_password': bcrypt_context.hash(ADMIN_PASSWORD), 'is_active': True,
+                         'role': 'admin'}
+NON_ADMIN_PASSWORD = 'non_admin_password'
 PREDEFINED_NON_ADMIN_USER = {'id': 2, 'email': 'user@example.com', 'username': 'user', 'first_name': 'Regular',
-                             'last_name': 'User', 'hashed_password': 'hashed_password_2', 'is_active': True,
-                             'role': 'owner'
-                             }
+                             'last_name': 'User', 'hashed_password': bcrypt_context.hash(NON_ADMIN_PASSWORD),
+                             'is_active': True, 'role': 'owner'}
 INSERT_USER_QUERY = text(
     """
     INSERT INTO users (id, email, username, first_name, last_name, hashed_password, is_active, role)
