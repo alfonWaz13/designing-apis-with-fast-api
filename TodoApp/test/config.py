@@ -28,12 +28,8 @@ def override_get_database():
         db.close()
 
 
-def override_get_current_user():
-    return {'username': 'usertest', 'id': 1, 'role': 'admin'}
-
-
 app.dependency_overrides[get_database] = override_get_database
-app.dependency_overrides[get_current_user] = override_get_current_user
+app.dependency_overrides[get_current_user] = lambda: {'username': 'usertest', 'id': 1, 'role': 'admin'}
 
 client = TestClient(app)
 PREDEFINED_TODO = {
