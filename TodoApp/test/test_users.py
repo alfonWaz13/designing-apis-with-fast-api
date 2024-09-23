@@ -3,7 +3,7 @@ from sqlalchemy import text
 
 from TodoApp.routers.auth import get_current_user
 from TodoApp.test.config import client, engine, TestingSessionLocal, INSERT_TODO_QUERY, PREDEFINED_TODO, \
-    INSERT_USER_QUERY, PREDEFINED_ADMIN_USER, PREDEFINED_NON_ADMIN_USER
+    INSERT_USER_QUERY, PREDEFINED_ADMIN_USER, PREDEFINED_NON_ADMIN_USER, NON_ADMIN_PASSWORD
 from fastapi import status
 
 
@@ -40,3 +40,13 @@ def test_user_is_found_in_database():
     assert response_json['first_name'] == PREDEFINED_NON_ADMIN_USER['first_name']
     assert response_json['last_name'] == PREDEFINED_NON_ADMIN_USER['last_name']
     assert response_json['role'] == PREDEFINED_NON_ADMIN_USER['role']
+
+
+@pytest.mark.parametrize("current_password, expected_status_code",
+                         [(NON_ADMIN_PASSWORD, status.HTTP_204_NO_CONTENT),
+                          ('incorrect_password', status.HTTP_401_UNAUTHORIZED)])
+def test_password_success_only_when_correct_password_is_provided(current_password, expected_status_code):
+
+    client.app.dependency_overrides[get_current_user] = lambda: PREDEFINED_NON_ADMIN_USER
+    response = client.put("/user/password", json={"current_password": current_password, "new_password": "newpassword"})
+    assert response.status_code == expected_status_code
