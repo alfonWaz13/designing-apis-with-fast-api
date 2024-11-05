@@ -1,10 +1,12 @@
 from datetime import timedelta
 
 import pytest
+from fastapi import HTTPException
 from jose import jwt
 from sqlalchemy import text
 
 from TodoApp.routers.auth import authenticate_user, create_access_token, SECRET_KEY, ALGORITHM, get_current_user
+from TodoApp.routers.response_messages import CANNOT_VALIDATE_USER_MESSAGE
 from TodoApp.test.config import TestingSessionLocal, PREDEFINED_NON_ADMIN_USER, NON_ADMIN_PASSWORD, engine, \
     INSERT_USER_QUERY
 
@@ -78,3 +80,15 @@ async def test_get_current_user_validates_token_correctly():
     assert user['username'] == PREDEFINED_NON_ADMIN_USER['username']
     assert user['id'] == PREDEFINED_NON_ADMIN_USER['id']
     assert user['role'] == PREDEFINED_NON_ADMIN_USER['role']
+
+
+@pytest.mark.asyncio
+async def test_get_current_user_raises_error_if_fields_are_missing():
+    encode = {'sub': PREDEFINED_NON_ADMIN_USER['username']}
+    token = jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    with pytest.raises(HTTPException) as exception:
+        await get_current_user(token)
+
+    assert exception.value.status_code == 401
+    assert exception.value.detail == CANNOT_VALIDATE_USER_MESSAGE
