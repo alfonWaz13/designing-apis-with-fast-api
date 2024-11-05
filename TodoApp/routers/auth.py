@@ -7,6 +7,7 @@ from starlette import status
 
 from TodoApp.database import db_dependency
 from TodoApp.models import Users, Token
+from TodoApp.routers.response_messages import CANNOT_VALIDATE_USER_MESSAGE
 from TodoApp.schemas import CreateUserRequest
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 from jose import jwt, JWTError
@@ -45,7 +46,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
         return {'username': username, 'id': user_id, 'role': user_role}
 
     except (JWTError, ValueError):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Could not validate user.')
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=CANNOT_VALIDATE_USER_MESSAGE)
 
 
 user_dependency = Annotated[dict, Depends(get_current_user)]
