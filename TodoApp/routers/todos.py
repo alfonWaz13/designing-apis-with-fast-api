@@ -7,7 +7,12 @@ from TodoApp.routers.auth import user_dependency
 from TodoApp.routers import response_messages
 from TodoApp.schemas import ToDoRequest
 
-router = APIRouter()
+PREFIX = '/todos'
+
+router = APIRouter(
+    prefix=PREFIX,
+    tags=['todos']
+)
 
 
 @router.get("/", status_code=status.HTTP_200_OK)
